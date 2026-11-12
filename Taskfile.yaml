@@ -1,0 +1,56 @@
+version: '3'
+
+tasks:
+  default:
+    silent: true
+    cmds:
+      - '{{.TASK_EXE | shellQuote}} --list --sort none'
+
+  require-uv:
+    internal: true
+    preconditions:
+      - sh: uv --version
+        msg: "uv is required"
+
+  require-typst:
+    internal: true
+    preconditions:
+      - sh: typst --version
+        msg: "typst is required"
+
+  setup-uv:
+    desc: Install dependencies
+    deps: [require-uv]
+    cmds:
+      - uv sync
+
+  stat:
+    desc: Run the statistical analysis for both datasets
+    deps: [require-uv]
+    dir: src/analiza_statystyczna/
+    cmds:
+      - uv run python analiza-statystyczna.py
+
+  raport:
+    desc: Compile both Typst reports to PDF
+    deps: [require-typst]
+    dir: src/analiza_statystyczna/
+    cmds:
+      - typst compile statystyczna-dry-bean.typ
+      - typst compile statystyczna-breast-cancer.typ
+
+  check:
+    desc: Run pyright and ruff checks
+    deps: [require-uv]
+    cmds:
+      - uv run pyright src/analiza_statystyczna/analiza-statystyczna.py
+      - uv run ruff check src/analiza_statystyczna/analiza-statystyczna.py
+      - uv run ruff format --check src/analiza_statystyczna/analiza-statystyczna.py
+
+  update-flake:
+    desc: Update flake.lock (requires Nix)
+    preconditions:
+      - sh: command -v nix
+        msg: "Nix is not installed, this task is only for Nix users"
+    cmds:
+      - nix flake update
