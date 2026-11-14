@@ -274,3 +274,49 @@ liczebność poszczególnych odmian fasoli. Dane okazały się kompletne i popra
 technicznych), a funkcja czyszcząca została pozytywnie zweryfikowana na sztucznie
 wprowadzonych błędach. Szeregi czasowe nie dotyczą tego zbioru danych, ponieważ nie zawiera on
 żadnej informacji o czasie pomiaru.
+
+= Wzory
+
+*Statystyki opisowe* (dla każdej cechy):
+- średnia: $overline(x) = 1/n sum_(i=1)^n x_i$
+- odchylenie standardowe: $s = sqrt(1/(n-1) sum_(i=1)^n (x_i - overline(x))^2)$
+- mediana: wartość środkowa po posortowaniu danych
+- kwantyl rzędu $p$: wartość, poniżej której leży $p dot 100%$ danych; Q1 to $p = "0,25"$, Q3 to $p = "0,75"$, a kwantyle 0,1 i 0,9 to $p = "0,1"$ i $p = "0,9"$
+
+#let cov = math.op("cov")
+
+*Korelacja Pearsona:* $r = cov(x, y) / (s_x dot s_y)$, gdzie $cov(x, y) = 1/(n-1) sum_(i=1)^n (x_i - overline(x))(y_i - overline(y))$. Wynik jest z przedziału od $-1$ do $1$.
+
+*Regresja liniowa:* $hat(y) = a dot x + b$, gdzie $a = cov(x, y) / s_x^2$ oraz $b = overline(y) - a dot overline(x)$. Współczynnik determinacji: $R^2 = r^2$.
+
+*Uzupełnianie braków:* $x_i := "mediana"(x_"poprawne")$ -- mediana liczona tylko z poprawnych wartości kolumny.
+
+*Przykład z naszych danych* (`radius_mean` i `perimeter_mean`): $r = "0,998"$, $R^2 = "0,996"$, wzór regresji: $y = "6,8804" dot x - "5,2324"$.
+
+#table(
+  columns: (auto, 1fr),
+  align: left,
+  table.header[*Symbol*][*Znaczenie*],
+  [$n$], [liczba rekordów (u nas 569)],
+  [$x_i, y_i$], [$i$-ta wartość zmiennej $x$ i zmiennej $y$],
+  [$overline(x), overline(y)$], [średnie zmiennych $x$ i $y$],
+  [$s, s_x$], [odchylenie standardowe (ogólne i zmiennej $x$)],
+  [$p$], [rząd kwantyla (liczba od 0 do 1)],
+  [$cov(x, y)$], [kowariancja: czy $x$ i $y$ odchylają się od średnich w tę samą stronę],
+  [$r$], [współczynnik korelacji Pearsona],
+  [$a, b$], [nachylenie i wyraz wolny prostej regresji],
+  [$hat(y)$], [wartość $y$ przewidziana przez prostą],
+  [$R^2$], [jaką część zmienności $y$ tłumaczy prosta (od 0 do 1)],
+)
+
+
+= Wnioski
+
+- Dane wejściowe nie wymagały napraw – zero braków i wartości ujemnych; wykryto 68 zduplikowanych
+wierszy (klasa HOROZ), pozostawionych jako realne powtórzenia.
+- Klasy są wyraźnie niezbalansowane (od 522 do 3546 rekordów), co trzeba by uwzględnić na etapie
+eksploracyjnym (poza zakresem tego sprawozdania).
+- Area i Perimeter są silnie skorelowane – do dalszej analizy wystarczy jedna z tych dwóch cech; Extent nie
+jest liniowo związany z Area.
+- Analiza szeregów czasowych nie dotyczy tego zbioru – dane nie zawierają znacznika czasu, każdy rekord to
+pojedynczy, niezależny pomiar.
